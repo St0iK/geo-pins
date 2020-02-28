@@ -36,7 +36,6 @@ const Header = ({ classes }) => {
               </div>
           )}
 
-
           {/*Sign Out Button*/}
           <Signout/>
         </Toolbar>
