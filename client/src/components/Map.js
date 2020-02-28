@@ -3,6 +3,8 @@ import { withStyles } from "@material-ui/core/styles";
 import ReactMapGL, {Marker, NavigationControl} from 'react-map-gl';
 import PinIcon from "./PinIcon";
 import Context from "../context";
+import Blog from "./Blog";
+
 // import Button from "@material-ui/core/Button";
 // import Typography from "@material-ui/core/Typography";
 // import DeleteIcon from "@material-ui/icons/DeleteTwoTone";
@@ -84,6 +86,11 @@ const Map = ({ classes }) => {
           </Marker>
       )}
     </ReactMapGL>
+
+    {/*Area to add Pin Content*/}
+    <Blog>
+
+    </Blog>
   </div>);
 };
 
