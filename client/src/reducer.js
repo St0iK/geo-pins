@@ -35,6 +35,12 @@ export default function reducer(state, { type, payload}) {
                 }
             };
 
+        case "DISCARD_FORM":
+            return {
+                ...state,
+                draft: null
+            };
+
         default:
             return state;
     }

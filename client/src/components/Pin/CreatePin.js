@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useContext, useState} from "react";
+import { GraphQLClient } from "graphql-request";
 import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
@@ -7,8 +8,59 @@ import AddAPhotoIcon from "@material-ui/icons/AddAPhotoTwoTone";
 import LandscapeIcon from "@material-ui/icons/LandscapeOutlined";
 import ClearIcon from "@material-ui/icons/Clear";
 import SaveIcon from "@material-ui/icons/SaveTwoTone";
+import Context from "../../context";
+import axios from 'axios';
+import { CREATE_PIN_MUTATION } from "../../graphql/mutations";
 
 const CreatePin = ({ classes }) => {
+
+  const [title, setTitle] = useState('');
+  const [image, setImage] = useState('');
+  const [content, setContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const { state, dispatch } = useContext(Context);
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    
+    setSubmitting(true);
+  
+    const url = await handleImageUpload();
+
+    const idToken = window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
+    const client = new GraphQLClient('http://localhost:4000/graphql', {
+      headers: {authorization: idToken}
+    });
+
+    const { latitude, longitude } = state.draft;
+    const variables = {title, image: url, content, latitude, longitude}
+    const { createPin } = await client.request(CREATE_PIN_MUTATION, variables)
+
+    console.log("Pin Create", { createPin });
+    setSubmitting(false);
+    handleDiscard();
+  };
+
+  const handleImageUpload = async () => {
+    const data = new FormData();
+    data.append('file', image);
+    data.append('upload_preset', 'geopins');
+    data.append('cloud_name', 'dsxxfn4cx')
+    const res = await axios.post(
+        "http://api.cloudinary.com/v1_1/dsxxfn4cx/image/upload",
+        data
+    );
+
+    return res.data.url;
+  };
+
+  const handleDiscard = () => {
+    setTitle('');
+    setImage('');
+    setContent('');
+    dispatch({type:'DISCARD_FORM'});
+  };
+
   return (
       <form className={classes.form}>
         <Typography
@@ -24,12 +76,16 @@ const CreatePin = ({ classes }) => {
                 name='title'
                 label='Title'
                 placeholder='Insert Pin Title'
+                onChange={event => setTitle(event.target.value)}
             />
 
             <input
-              accept='image/*'
-              type='file'
-              className={classes.input}
+                id='image'
+                accept='image/*'
+                type='file'
+                className={classes.input}
+                onChange={event => setImage(event.target.files[0])}
+                style={{color: image && 'green'}}
             />
 
             <label htmlFor='image'>
@@ -52,6 +108,7 @@ const CreatePin = ({ classes }) => {
               margin='normal'
               fullWidth
               variant='outlined'
+              onChange={event => setContent(event.target.value)}
             />
         </div>
 
@@ -61,6 +118,7 @@ const CreatePin = ({ classes }) => {
           className={classes.button}
           variant='contained'
           color='primary'
+          onClick={handleDiscard}
           >
             <ClearIcon className={classes.leftIcon} />
             Discard
@@ -71,6 +129,8 @@ const CreatePin = ({ classes }) => {
               className={classes.button}
               variant='contained'
               color='secondary'
+              disabled={submitting || !title.trim() || !image || !content.trim()}
+              onClick={handleSubmit}
           >
             Submit
             <SaveIcon className={classes.rightIcon} />
