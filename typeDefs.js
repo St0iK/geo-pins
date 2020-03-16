@@ -31,7 +31,6 @@ module.exports = gql`
         getPins: [Pin!]
     }
 
-
     input CreatePinInput {
         title: String
         image: String
@@ -42,5 +41,11 @@ module.exports = gql`
 
     type Mutation {
         createPin(input: CreatePinInput!): Pin
+        deletePin(pinId: ID!): Pin
     }
+    
+    
+
+
+
 `;

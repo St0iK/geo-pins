@@ -33,6 +33,9 @@ module.exports = {
             }).save();
 
             return await Pin.populate(newPin, 'author');
+        }),
+        deletePin: authenticated(async (root, args, ctx) => {
+            return await Pin.findOneAndDelete({_id: args.pinId}).exec();
         })
     }
 };
