@@ -19,7 +19,7 @@ import reducer from "./reducer";
 
 
 const wsLink = new WebSocketLink({
-  uri: 'wss://localhost:4000/graphql',
+  uri: 'wss://js-geo-pins.herokuapp.com/graphql',
   options: {
     reconnect: true
   }
