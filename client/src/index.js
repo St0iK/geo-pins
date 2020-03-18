@@ -19,7 +19,7 @@ import reducer from "./reducer";
 
 
 const wsLink = new WebSocketLink({
-  uri: 'ws://localhost:4000/graphql',
+  uri: 'wss://localhost:4000/graphql',
   options: {
     reconnect: true
   }
