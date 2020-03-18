@@ -69,7 +69,6 @@ const Map = ({ classes }) => {
 
   const hightlightNewPin = pin => {
     const isNewPin = differenceinMinutes(Date.now(), Number(pin.createdAt)) <= 30;
-    console.log(isNewPin);
     return isNewPin ? 'limegreen' : 'darkblue'
   }
 

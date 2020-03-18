@@ -19,14 +19,11 @@ module.exports = {
     Query: {
         me: authenticated((root, args, ctx) => ctx.currentUser),
         getPins: async (root, args, ctx) => {
-            const pins = await Pin.find({}).populate('author').populate('comments.author')
-            return pins;
+            return await Pin.find({}).populate('author').populate('comments.author');
         }
     },
-
     Mutation: {
         createPin: authenticated(async (root, args, ctx) => {
-
             const newPin = await new Pin({
                 ...args.input,
                 author: ctx.currentUser._id
@@ -36,6 +33,15 @@ module.exports = {
         }),
         deletePin: authenticated(async (root, args, ctx) => {
             return await Pin.findOneAndDelete({_id: args.pinId}).exec();
+        }),
+        createComment: authenticated(async (root, args, ctx) => {
+            const newComment = { text: args.text, author: ctx.currentUser._id };
+            return await Pin.findOneAndUpdate(
+              { _id: args.pinId},
+              {$push: {comments: newComment}},
+              {new: true}
+            ).populate("author").populate("comments.author")
+
         })
     }
 };
