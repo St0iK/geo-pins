@@ -24,7 +24,7 @@ const INITIAL_VIEWPORT = {
   zoom: 13
 }
 const Map = ({ classes }) => {
-
+  const mapToken = "pk.eyJ1Ijoiamltc3RvaWsxMyIsImEiOiJjazd4bWdvY2swMGN1M2dtd2hscHU1OTRyIn0.b9X0sVjXqA19qfl-ps5L9Q";
   const mobileSize = useMediaQuery('(max-width: 650px)')
   const client = useClient();
   const { state, dispatch } = useContext(Context);
@@ -104,7 +104,7 @@ const Map = ({ classes }) => {
         width="100vw"
         height="calc(100vh - 64px)"
         mapStyle="mapbox://styles/mapbox/streets-v9"
-        mapboxApiAccessToken="pk.eyJ1Ijoiamltc3RvaWsxMyIsImEiOiJjazd4bWdvY2swMGN1M2dtd2hscHU1OTRyIn0.b9X0sVjXqA19qfl-ps5L9Q"
+        mapboxApiAccessToken={mapToken}
         {...viewport}
         onClick={handleMapClick}
         onViewportChange={newViewport => setViewport(newViewport)}
