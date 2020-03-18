@@ -31,10 +31,10 @@ const CreatePin = ({ classes }) => {
     const { latitude, longitude } = state.draft;
     const variables = {title, image: url, content, latitude, longitude}
     console.log(variables);
-    const { createPin } = await client.request(CREATE_PIN_MUTATION, variables)
+    await client.request(CREATE_PIN_MUTATION, variables)
 
-    console.log("Pin Create", { createPin });
-    dispatch({type:'CREATE_PIN', payload: createPin})
+    // console.log("Pin Create", { createPin });
+    // dispatch({type:'CREATE_PIN', payload: createPin})
     setSubmitting(false);
     handleDiscard();
   };

@@ -7,8 +7,12 @@ import Blog from "./Blog";
 import { useClient } from '../client';
 import { GET_PINS_QUERY } from '../graphql/queries'
 import { DELETE_PIN_MUTATION } from '../graphql/mutations'
-import differenceinMinutes from 'date-fns/difference_in_minutes';
+import differenceInMinutes from 'date-fns/difference_in_minutes';
 import { Typography } from "@material-ui/core";
+import { Subscription } from "react-apollo";
+import { PIN_ADDED_SUBSCRIPTION, PIN_UPDATED_SUBSCRIPTION, PIN_DELETED_SUBSCRIPTION } from "../graphql/subscriptions";
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery";
+
 // import { pink } from "@material-ui/core/colors";
 
 import Button from "@material-ui/core/Button";
@@ -20,6 +24,8 @@ const INITIAL_VIEWPORT = {
   zoom: 13
 }
 const Map = ({ classes }) => {
+
+  const mobileSize = useMediaQuery('(max-width: 650px)')
   const client = useClient();
   const { state, dispatch } = useContext(Context);
 
@@ -37,6 +43,14 @@ const Map = ({ classes }) => {
 
 
   const [popup, setPopup] = useState(null);
+
+  // remove popUp if pin is deleted by the author of the pin
+  useEffect(() => {
+    const pinExists = popup && state.pins.findIndex(pin => pin._id === popup._id) > -1
+    if (!pinExists) {
+      setPopup(null);
+    }
+  }, [state.pin.length])
 
   const getUserPosition = () => {
     if("geolocation" in navigator) {
@@ -68,7 +82,7 @@ const Map = ({ classes }) => {
   }
 
   const hightlightNewPin = pin => {
-    const isNewPin = differenceinMinutes(Date.now(), Number(pin.createdAt)) <= 30;
+    const isNewPin = differenceInMinutes(Date.now(), Number(pin.createdAt)) <= 30;
     return isNewPin ? 'limegreen' : 'darkblue'
   }
 
@@ -79,17 +93,13 @@ const Map = ({ classes }) => {
 
   const isAuthUser = () => state.currentUser._id === popup.author._id;
 
-  const handleDeletePin = async pin => {
-    console.log('PIN TO DELETE');
-    console.log(pin);
-    const { deletePin } = await client.request(DELETE_PIN_MUTATION, { pinId: pin._id });
-    console.log('DELETED PIN');
-    console.log(deletePin);
-    dispatch({ type: 'DELETE_PIN', payload: deletePin });
+  const handleDeletePin = async (pin, e) => {
+    e.preventDefault();
+    await client.request(DELETE_PIN_MUTATION, { pinId: pin._id });
     setPopup(null);
   }
 
-  return (<div className={classes.root}>
+  return (<div className={mobileSize? classes.rootMobile : classes.root}>
     <ReactMapGL
         width="100vw"
         height="calc(100vh - 64px)"
@@ -165,8 +175,8 @@ const Map = ({ classes }) => {
                 {popup.latitude.toFixed(6)}, {popup.longitude.toFixed(6)} 
               </Typography>
               {isAuthUser() && (
-                <Button onClick={() => handleDeletePin(popup)}>
-                  <DeleteIcon className={classes.deleteIcon}></DeleteIcon>
+                <Button onClick={(e) => handleDeletePin(popup, e)}>
+                  <DeleteIcon className={classes.deleteIcon}/>
                 </Button>
               )}
             </div>
@@ -175,12 +185,38 @@ const Map = ({ classes }) => {
 
     </ReactMapGL>
 
+    <Subscription
+      subscription={PIN_ADDED_SUBSCRIPTION}
+      onSubscriptionData={ ({subscriptionData}) => {
+        const { pinAdded } = subscriptionData.data;
+        dispatch({type: 'CREATE_PIN', payload: pinAdded})
+      }}
+    />
+
+      <Subscription
+        subscription={PIN_UPDATED_SUBSCRIPTION}
+        onSubscriptionData={ ({subscriptionData}) => {
+          const { pinUpdated } = subscriptionData.data;
+          dispatch({type: 'CREATE_COMMENT', payload: pinUpdated})
+        }}
+      />
+
+      <Subscription
+        subscription={PIN_DELETED_SUBSCRIPTION}
+        onSubscriptionData={ ({subscriptionData}) => {
+          const { pinDeleted } = subscriptionData.data;
+          dispatch({type: 'DELETE_PIN', payload: pinDeleted})
+        }}
+      />
+
 
     {/*Area to add Pin Content*/}
-    <Blog>
 
-    </Blog>
-  </div>);
+    <Blog />
+  </div>
+
+
+  );
 };
 
 const styles = {
