@@ -104,7 +104,7 @@ const Map = ({ classes }) => {
         width="100vw"
         height="calc(100vh - 64px)"
         mapStyle="mapbox://styles/mapbox/streets-v9"
-        mapboxApiAccessToken="pk.eyJ1Ijoiamltc3RvaWsxMyIsImEiOiJjazJ0MWRjbXgwbm5wM210ajhtZTZ0aXN2In0.AUPUdKHqvgoAGLPjRf_KtA"
+        mapboxApiAccessToken="pk.eyJ1Ijoiamltc3RvaWsxMyIsImEiOiJjazd4bWdvY2swMGN1M2dtd2hscHU1OTRyIn0.b9X0sVjXqA19qfl-ps5L9Q"
         {...viewport}
         onClick={handleMapClick}
         onViewportChange={newViewport => setViewport(newViewport)}
