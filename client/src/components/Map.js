@@ -50,7 +50,7 @@ const Map = ({ classes }) => {
     if (!pinExists) {
       setPopup(null);
     }
-  }, [state.pin.length])
+  }, [state.pins.length])
 
   const getUserPosition = () => {
     if("geolocation" in navigator) {
